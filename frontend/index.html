@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>推敲 Tuiqiao · 中学写作评价与教学辅助智能体</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232F4B6B'/%3E%3Cpath d='M20 22h24v8l-8 2v14h-8V32l-8-2v-8z' fill='%23F5F1E8'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F1E8;
+  --paper-2:#EDE7D9;
+  --surface:#FFFFFF;
+  --ink:#242E38;
+  --ink-soft:#4A5560;
+  --muted:#8A8F98;
+  --line:#E3DCCE;
+  --line-2:#D6CEC0;
+  --accent:#2F4B6B;
+  --accent-soft:#E7EDF4;
+  --lang:#2E7D6B;
+  --think:#4A5F9E;
+  --culture:#B5483B;
+  --adopt:#2E7D6B;
+  --warn:#B5483B;
+  --shadow:0 1px 2px rgba(36,46,56,.05),0 8px 24px rgba(36,46,56,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:
+    radial-gradient(1200px 500px at 80% -10%, rgba(47,75,107,.08), transparent 60%),
+    var(--paper);
+  color:var(--ink);
+  font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  font-weight:400;
+  line-height:1.7;
+  min-height:100vh;
+}
+h1,h2,h3,.serif{font-family:"Noto Serif SC","Songti SC","SimSun",serif}
+.wrap{max-width:1020px;margin:0 auto;padding:28px 18px 64px}
+
+/* ===== 页头 ===== */
+.hero{padding:30px 4px 26px;border-bottom:1px solid var(--line-2)}
+.hero .eyebrow{font-size:12px;letter-spacing:.28em;color:var(--accent);font-weight:500;margin-bottom:12px}
+.hero h1{font-size:clamp(26px,5vw,38px);line-height:1.25;font-weight:700;letter-spacing:.01em}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero .sub{margin-top:12px;color:var(--ink-soft);font-size:15px;max-width:640px}
+.hero .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{font-size:12px;color:var(--accent);background:var(--accent-soft);border:1px solid #cfdcea;padding:3px 10px;border-radius:999px;font-weight:500}
+
+/* ===== 面板通用 ===== */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.panel-head h2{font-size:17px;font-weight:700}
+.panel-head .hint{font-size:12px;color:var(--muted);font-weight:400}
+section+section{margin-top:26px}
+
+/* ===== 输入区 ===== */
+.essay-box{padding:18px}
+textarea{
+  width:100%;min-height:220px;resize:vertical;border:1px solid var(--line-2);
+  border-radius:10px;padding:14px 16px;font-family:"Noto Sans SC",system-ui,sans-serif;
+  font-size:16px;line-height:1.8;color:var(--ink);background:#FCFBF7;
+  transition:border-color .15s;
+}
+textarea:focus{outline:none;border-color:var(--accent)}
+textarea::placeholder{color:#B9B7AC}
+.input-meta{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:12px;font-size:13px;color:var(--muted)}
+.input-meta b{color:var(--ink);font-weight:500}
+.input-meta .live{color:var(--accent);font-weight:500}
+.actions{display:flex;align-items:center;gap:14px;padding:0 18px 18px;flex-wrap:wrap}
+#submit{
+  border:0;background:var(--accent);color:#fff;font-size:16px;font-weight:500;
+  padding:12px 30px;border-radius:10px;cursor:pointer;font-family:inherit;
+  transition:background .15s,transform .05s;
+}
+#submit:hover{background:#3a5c80}
+#submit:disabled{background:#a9b6c3;cursor:not-allowed}
+.actions .note{font-size:12px;color:var(--muted)}
+
+/* ===== 结果区 ===== */
+.result-head{padding:16px 18px;border-bottom:1px solid var(--line)}
+.result-head h2{font-size:17px;font-weight:700}
+.banner{margin:0 18px 16px;padding:10px 14px;border-radius:9px;font-size:13px}
+.banner.ok{background:#EAF4EF;border:1px solid #CBE4D8;color:#24503F}
+.banner.err{background:#FBE9E6;border:1px solid #EFC9C2;color:#7C3327}
+.score-row{display:grid;grid-template-columns:1fr;gap:12px;padding:16px 18px}
+.score-card{border:1px solid var(--line);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.score-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px}
+.score-card .sc-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.score-card .sc-name{font-size:15px;font-weight:700}
+.score-card .sc-score{font-size:34px;line-height:1;font-weight:700;font-family:"Noto Serif SC",serif}
+.score-card .sc-tag{font-size:11px;color:var(--muted);margin-top:6px}
+.score-card .sc-desc{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6}
+.score-card .bar{margin-top:12px;height:6px;border-radius:3px;background:var(--paper-2);overflow:hidden}
+.score-card .bar i{display:block;height:100%;border-radius:3px}
+.score-card .cite{display:flex;gap:8px;align-items:flex-start;margin-top:14px;font-size:12px;color:var(--muted);line-height:1.6}
+.score-card .cite svg{flex:0 0 auto;margin-top:2px;color:var(--accent)}
+.comment{font-size:14px;line-height:1.9;margin-top:12px;color:var(--ink)}
+.adopt-row{margin-top:auto;padding-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.adopt-btn{
+  border:1px solid var(--line-2);background:#fff;color:var(--adopt);
+  font-size:13px;padding:7px 14px;border-radius:9px;cursor:pointer;font-family:inherit;font-weight:500;
+  transition:all .15s;
+}
+.adopt-btn.adopted{background:#EAF4EF;border-color:#9CC6AE;color:#24503F}
+.adopt-btn:disabled{opacity:.5;cursor:default}
+.overall{padding:0 18px 18px}
+.overall .o-title{font-size:12px;color:var(--muted);font-weight:500;margin-bottom:6px}
+.overall p{font-size:14px;line-height:1.9;color:var(--ink-soft)}
+
+/* 过程数据 */
+.process-grid{display:grid;grid-template-columns:1fr;gap:12px;padding:16px 18px}
+.proc{border:1px solid var(--line);border-radius:11px;padding:14px 16px;display:flex;gap:14px;align-items:flex-start}
+.proc .p-num{font-size:28px;font-weight:700;font-family:"Noto Serif SC",serif;color:var(--accent);line-height:1;min-width:52px}
+.proc .p-name{font-size:14px;font-weight:700}
+.proc .p-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-top:4px}
+
+/* ===== 成长区 ===== */
+.growth{padding:16px 18px}
+.growth .g-tabs{display:flex;gap:8px;margin-bottom:6px}
+.growth .g-tabs button{border:1px solid var(--line-2);background:#fff;color:var(--ink-soft);font-size:13px;padding:6px 14px;border-radius:9px;cursor:pointer;font-family:inherit}
+.growth .g-tabs button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.growth .g-note{font-size:12px;color:var(--muted);margin-bottom:8px}
+.chart{width:100%;height:340px}
+.growth .g-empty{color:var(--muted);font-size:13px;padding:30px 0;text-align:center}
+
+/* ===== 页脚 ===== */
+.foot{margin-top:40px;padding-top:20px;border-top:1px solid var(--line-2);font-size:12px;color:var(--muted);line-height:1.9}
+.foot b{color:var(--ink-soft);font-weight:500}
+
+/* ===== 新建 / 修改 ===== */
+.essay-actions{display:flex;align-items:center;gap:10px}
+.icon-btn,.edit-btn{
+  background:#fff;color:var(--accent);border:1px solid var(--line-2);border-radius:10px;
+  font-family:inherit;cursor:pointer;transition:background .1s,color .1s,border-color .1s;
+}
+.icon-btn{width:40px;height:40px;padding:0;font-size:24px;line-height:1;display:flex;align-items:center;justify-content:center}
+.edit-btn{height:40px;padding:0 20px;font-size:14px;font-weight:500}
+.icon-btn.flash,.edit-btn.flash,
+.icon-btn:active,.edit-btn:active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ===== 演示入口 / 返回 ===== */
+.demo-entry{display:flex;justify-content:center;margin-top:32px}
+.demo-btn{border:1px solid var(--line-2);background:#fff;color:var(--accent);font-size:14px;font-weight:500;padding:10px 24px;border-radius:10px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow)}
+.demo-btn:hover{background:var(--accent-soft)}
+.back-btn{position:fixed;top:16px;left:16px;z-index:20;border:1px solid var(--line-2);background:#fff;color:var(--accent);font-size:13px;padding:7px 14px;border-radius:9px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow)}
+.back-btn:hover{background:var(--accent-soft)}
+.back-btn:disabled{opacity:.5;cursor:default}
+
+/* ===== 断点 ===== */
+@media (min-width:700px){
+  .score-row{grid-template-columns:repeat(3,1fr)}
+  .process-grid{grid-template-columns:repeat(3,1fr)}
+  .wrap{padding:34px 26px 64px}
+}
+@media (min-width:768px){
+  body{font-size:15px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+<div id="app" class="wrap">
+
+  <button v-if="view==='demo'" class="back-btn" @click="closeDemo" :disabled="busy">← 返回</button>
+
+  <!-- ===== 页头 ===== -->
+  <header class="hero">
+    <div class="eyebrow">AI CHINESE WRITING COACH</div>
+    <h1>推敲 <em>Tuiqiao</em></h1>
+    <p class="sub">中学写作评价与教学辅助智能体。粘贴一篇作文，系统从「语言表达 · 思维品质 · 文化理解」三维度给出分数与评语；每条评语标注课标条目 / 教材篇目出处，同时记录构思时长与建议采纳情况，生成个人成长曲线。</p>
+    <div class="chips">
+      <span class="chip">评语可追溯</span>
+      <span class="chip">识别含蓄表达</span>
+      <span class="chip">过程性评价</span>
+      <span class="chip">本地知识库检索</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- ===== 输入区 ===== -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2>粘贴作文</h2>
+        <div class="essay-actions">
+          <button type="button" class="icon-btn" @click="onNewClick($event)" title="新建" aria-label="新建">+</button>
+          <button type="button" class="edit-btn" @click="onReviseClick($event)" title="修改当前作文">修改</button>
+        </div>
+      </div>
+      <div class="essay-box">
+        <textarea v-model="essay" @input="onEssayInput" :disabled="busy" :readonly="view==='demo'" placeholder="在这里粘贴作文内容"></textarea>
+        <div class="input-meta">
+          <span>构思时长 <b ref="thinkEl" :class="{'live':timerRunning}">0s</b></span>
+          <span>修改次数 <b>{{revisionCount}}</b></span>
+          <span v-if="result">本次采纳率 <b>{{adoptRate}}</b></span>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="submit" @click="evaluate" :disabled="busy">{{busy ? '正在分析……' : '开始评价'}}</button>
+      </div>
+      <div v-if="errorMsg" class="banner err" style="margin:0 18px 16px">{{errorMsg}}</div>
+    </section>
+
+    <!-- ===== 结果区 ===== -->
+    <section v-if="result" class="panel">
+      <div class="result-head">
+        <h2>评价结果</h2>
+      </div>
+      <div v-if="result._mode" class="banner ok">{{result._mode==='demo' ? '演示用例 · 示例数据（非真实评分）' : '实时评价结果'}}</div>
+
+      <div class="score-row">
+        <div v-for="(card,i) in dimCards" :key="card.key" class="score-card" :style="{'--c':card.color}">
+          <div class="sc-top">
+            <div class="sc-name">{{card.name}}</div>
+            <div class="sc-score" :style="{color:card.color}">{{card.score}}</div>
+          </div>
+          <div class="sc-tag">{{card.tag}}</div>
+          <div class="sc-desc">{{card.desc}}</div>
+          <div class="bar"><i :style="{background:card.color,width:(card.score*10)+'%'}"></i></div>
+          <div class="comment">{{card.comment}}</div>
+          <div class="cite">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 4h16v13H8l-4 4V4z"/></svg>
+            <span>依据：{{card.cite}}</span>
+          </div>
+          <div class="adopt-row">
+            <button class="adopt-btn" :class="{adopted:card.adopted}" @click="adopt(card.key)" :disabled="card.adopted">
+              {{card.adopted ? '已采纳 ✓' : '我采纳了这条建议'}}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="overall">
+        <div class="o-title">一句话总评</div>
+        <p>{{result.overall}}</p>
+      </div>
+    </section>
+
+    <!-- ===== 过程数据 ===== -->
+    <section v-if="result" class="panel">
+      <div class="panel-head"><h2>过程性数据</h2><span class="hint">记录写作过程，而不只看最终分数</span></div>
+      <div class="process-grid">
+        <div class="proc">
+          <div class="p-num">{{thinkSeconds}}s</div>
+          <div><div class="p-name">构思时长</div><div class="p-desc">从点击开始评价到结果返回的耗时</div></div>
+        </div>
+        <div class="proc">
+          <div class="p-num">{{adoptCount}}/{{dimCards.length}}</div>
+          <div><div class="p-name">建议采纳</div><div class="p-desc">每条建议旁「采纳」按钮的点击数，反映学生对反馈的接受度</div></div>
+        </div>
+        <div class="proc">
+          <div class="p-num">{{revisionCount}}</div>
+          <div><div class="p-name">修改轨迹</div><div class="p-desc">在修改模式下点击开始评价的次数，记录反复打磨的痕迹</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 成长曲线 ===== -->
+    <section class="panel growth">
+      <div class="panel-head">
+        <h2>成长曲线</h2>
+        <span class="hint">{{view==='demo' ? '演示用例数据' : '历次评价记录'}}</span>
+      </div>
+      <div class="g-tabs">
+        <button :class="{on:chartTab==='line'}" @click="chartTab='line';drawCharts()">三维度折线</button>
+        <button :class="{on:chartTab==='radar'}" @click="chartTab='radar';drawCharts()">最新篇雷达</button>
+      </div>
+      <div v-if="history.length" class="g-note">横轴为历次作文，三条线分别代表三个维度的得分趋势。</div>
+      <div v-else class="g-empty">暂无历史数据。可点击页面底部的「查看演示用例」查看示例曲线，或先提交一次评价。</div>
+      <div id="growthChart" class="chart"></div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div>本演示展示三维评价、可追溯依据与过程性数据。</div>
+    <div>演示用例中的分数与评语仅用于界面展示。</div>
+  </footer>
+
+  <div v-if="view==='main'" class="demo-entry">
+    <button class="demo-btn" @click="openDemo">查看演示用例</button>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

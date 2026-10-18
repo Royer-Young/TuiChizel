@@ -1,0 +1,35 @@
+.env
+.env.*
+!.env.example
+
+# 虚拟环境
+venv/
+.venv/
+env/
+
+# 本地模型与向量索引（体积大，需在本地生成）
+models/
+data/chroma/
+
+# Python 缓存
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# 编辑器 / 系统文件
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+
+# SQLite（含 WAL 模式产生的旁路文件）
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+data/app.db
