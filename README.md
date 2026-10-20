@@ -1,11 +1,13 @@
-# 推敲 Tuiqiao
+# 推敲 TuiChizel
 
-**AI Chinese Writing Coach** · 中学写作评价与教学辅助智能体（开题 Demo）
+**TuiChizel** = Tuition（辅导）+ Chisel（雕琢）：以辅导促修改，以雕琢成文章。
+
+**AI Chinese Writing Coach** · 中学写作评价与教学辅助智能体
 
 按分工把交付内容拆成以下几个目录，互不混放：
 
 ```text
-tuiqiao/
+TuiChizel/
 ├── backend/          # 人三：FastAPI 服务 + SQLite + 后端自测
 ├── model_rag/        # 人二：提示词、DeepSeek 调用、RAG 检索、实验脚本
 ├── frontend/         # 人四：Vue3 + ECharts 静态页面

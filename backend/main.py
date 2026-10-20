@@ -78,7 +78,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="推敲 Tuiqiao · 中学写作评价与教学辅助智能体", lifespan=lifespan)
+app = FastAPI(title="推敲 TuiChizel · 中学写作评价与教学辅助智能体", lifespan=lifespan)
 
 # 前端是本地静态页（file:// 或 127.0.0.1 其他端口），统一放开跨域
 app.add_middleware(
